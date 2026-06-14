@@ -19,7 +19,7 @@ const SHEET_CSV_URL = "VOTRE_URL_GOOGLE_SHEETS_CSV_ICI";
 // Catégories par défaut si le Google Sheet n'est pas encore configuré 
 const DEFAULT_MENU = [
   {
-    category: "Petit Déjeuner", categoryEN: "Breakfast", icon: "☕",
+    category: "Petit Déjeuner", categoryEN: "Breakfast", icon: "🥐",
     items: [
       { name: "Petit Déjeuner : Du Jour", desc: "Café au choix - Eau (0.5L) - Jus au choix (Citron / Fraise) - Cake ou Croissant", price: "9.500 DT" },
       { name: "Petit Déjeuner : 1 Personne", desc: "Café au choix - Eau (0.5L) - Jus au choix - Crêpe chocolat mini ou mini gaufre - Omelette - Nuggets ou Escalope panée - Charcuterie - Fruits de saison", price: "16.000 DT" },
