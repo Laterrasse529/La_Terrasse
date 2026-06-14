@@ -13,10 +13,10 @@
    3. Votre feuille doit avoir ces colonnes (ligne 1 = en-têtes) :
       Catégorie | Catégorie_EN | Icône | Nom | Description | Prix
    ============================================ */
+/*
+const SHEET_CSV_URL = "VOTRE_URL_GOOGLE_SHEETS_CSV_ICI"; */
 
-const SHEET_CSV_URL = "VOTRE_URL_GOOGLE_SHEETS_CSV_ICI";
-
-/* Catégories par défaut si le Google Sheet n'est pas encore configuré */
+/* Catégories par défaut si le Google Sheet n'est pas encore configuré 
 const DEFAULT_MENU = [
   {
     category: "Petit Déjeuner", categoryEN: "Breakfast", icon: "☕",
@@ -102,6 +102,70 @@ const DEFAULT_MENU = [
     ]
   },
 ];
+*/
+// Remplacez cette URL par le lien CSV obtenu lors de la "Publication sur le web" de votre Google Sheet
+const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT0umQjh-b9W_2xUNlrVA2-LybYOcY16eoSSjCGpJuJRsnXo1VmOPz4U2b6qTir5y6MuInK3tSCID5E/pub?output=csv";
+
+async function loadMenuFromSheets() {
+  try {
+    const response = await fetch(GOOGLE_SHEET_CSV_URL);
+    const data = await response.text();
+    
+    // Découpage des lignes du CSV
+    const lines = data.split("\n").map(line => line.trim()).filter(line => line);
+    // Récupération des entêtes (Première ligne)
+    const headers = lines[0].split(",");
+    
+    const menuMap = new Map();
+
+    // Parcours des lignes de données (on commence à index 1)
+    for (let i = 1; i < lines.length; i++) {
+      // Regex pour gérer correctement les virgules à l'intérieur des guillemets si besoin
+      const row = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim());
+      
+      if (row.length < 5) continue; // Ligne invalide ou incomplète
+
+      const category = row[0];
+      const categoryEN = row[1];
+      const icon = row[2];
+      const itemName = row[3];
+      const itemDesc = row[4];
+      const itemPrice = row[5];
+
+      // Si la catégorie n'existe pas encore dans notre Map, on la crée
+      if (!menuMap.has(category)) {
+        menuMap.set(category, {
+          category: category,
+          categoryEN: categoryEN,
+          icon: icon,
+          items: []
+        });
+      }
+
+      // Ajout de l'article dans sa catégorie correspondante
+      menuMap.get(category).items.push({
+        name: itemName,
+        desc: itemDesc,
+        price: itemPrice
+      });
+    }
+
+    // Convertit la Map en tableau structuré comme votre ancien DEFAULT_MENU
+    return Array.from(menuMap.values());
+
+  } catch (error) {
+    console.error("Erreur lors du chargement du menu depuis Google Sheets :", error);
+    // En cas d'erreur (pas de connexion), vous pouvez retourner un menu de secours ou un tableau vide
+    return [];
+  }
+}
+
+// --- COMMENT L'UTILISER DANS VOTRE APPLICATION ---
+// Au chargement de votre page ou composant (par exemple dans un useEffect ou window.onload) :
+// loadMenuFromSheets().then(menuDynamique => {
+//    console.log(menuDynamique); 
+//    // Mettez à jour l'état (State) de votre application avec 'menuDynamique'
+// });
 
 /* ============================================
    PARSING CSV FROM GOOGLE SHEETS
